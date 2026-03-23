@@ -1,0 +1,102 @@
+(* pico.yal — YALex specification for the PICO language *)
+
+{
+(* Generated lexer for PICO language *)
+(* Tokens: INT_LIT FLOAT_LIT STRING_LIT BOOL_LIT IDENT *)
+(*         ASSIGN PLUS MINUS TIMES DIV MOD              *)
+(*         EQ NEQ LT GT LEQ GEQ AND OR NOT              *)
+(*         LPAREN RPAREN LBRACE RBRACE                   *)
+(*         SEMICOLON COMMA                               *)
+(*         KW_MACRO KW_EMIT KW_WHEN KW_OTHERWISE        *)
+(*         KW_REPEAT KW_UNTIL KW_LET                    *)
+}
+
+(* ── Character classes ──────────────────────────────── *)
+
+let digit      = ['0'-'9']
+let nonzero    = ['1'-'9']
+let letter     = ['a'-'z' 'A'-'Z']
+let alphanum   = letter | digit | '_'
+
+(* ── Numeric literals ───────────────────────────────── *)
+
+let int_lit    = '0' | nonzero digit*
+let float_lit  = int_lit '.' digit+
+
+(* ── String literal (no embedded newlines) ──────────── *)
+
+let str_char   = [^ '"' '\n' '\\'] | '\\' _
+let string_lit = '"' str_char* '"'
+
+(* ── Identifiers ────────────────────────────────────── *)
+
+let ident      = letter alphanum*
+
+(* ── Line comment ───────────────────────────────────── *)
+
+let line_cmt   = '-' '-' [^ '\n']* '\n'
+
+(* ══════════════════════════════════════════════════════ *)
+
+rule gettoken =
+
+    (* Skip whitespace *)
+    [' ' '\t' '\n' '\r']          { return lexbuf }
+
+    (* Skip line comments *)
+  | line_cmt                      { return lexbuf }
+
+    (* Floating-point — must come BEFORE int_lit *)
+  | float_lit                     { return FLOAT_LIT(lxm) }
+
+    (* Integer *)
+  | int_lit                       { return INT_LIT(lxm) }
+
+    (* String literal *)
+  | string_lit                    { return STRING_LIT(lxm) }
+
+    (* Boolean literals — must come BEFORE ident *)
+  | "true"                        { return BOOL_LIT(lxm) }
+  | "false"                       { return BOOL_LIT(lxm) }
+
+    (* Keywords — must come BEFORE ident *)
+  | "macro"                       { return KW_MACRO }
+  | "emit"                        { return KW_EMIT }
+  | "when"                        { return KW_WHEN }
+  | "otherwise"                   { return KW_OTHERWISE }
+  | "repeat"                      { return KW_REPEAT }
+  | "until"                       { return KW_UNTIL }
+  | "let"                         { return KW_LET }
+
+    (* Identifier *)
+  | ident                         { return IDENT(lxm) }
+
+    (* Two-character operators — must come BEFORE single-char *)
+  | "<-"                          { return ASSIGN }
+  | "=="                          { return EQ }
+  | "!="                          { return NEQ }
+  | "<="                          { return LEQ }
+  | ">="                          { return GEQ }
+  | "&&"                          { return AND }
+  | "||"                          { return OR }
+
+    (* Single-character operators *)
+  | '+'                           { return PLUS }
+  | '-'                           { return MINUS }
+  | '*'                           { return TIMES }
+  | '/'                           { return DIV }
+  | '%'                           { return MOD }
+  | '<'                           { return LT }
+  | '>'                           { return GT }
+  | '!'                           { return NOT }
+
+    (* Delimiters *)
+  | '('                           { return LPAREN }
+  | ')'                           { return RPAREN }
+  | '{'                           { return LBRACE }
+  | '}'                           { return RBRACE }
+  | ';'                           { return SEMICOLON }
+  | ','                           { return COMMA }
+
+    (* End of file *)
+  | eof                           { raise( 'End of input' ) }
