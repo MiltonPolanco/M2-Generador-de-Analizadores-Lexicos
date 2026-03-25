@@ -1,0 +1,3 @@
+-- Malformed float (trailing dot, no digits after decimal)
+let pi <- 3.;
+emit pi;

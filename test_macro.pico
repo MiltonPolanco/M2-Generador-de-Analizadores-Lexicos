@@ -1,0 +1,7 @@
+-- Macro (named expression)
+macro double(n) {
+    n * 2
+}
+
+let val <- 7;
+emit double(val);

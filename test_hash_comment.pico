@@ -1,0 +1,3 @@
+# This uses Python-style comments which PICO does not support
+let x <- 1;
+emit x;

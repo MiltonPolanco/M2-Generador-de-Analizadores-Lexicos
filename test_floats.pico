@@ -1,0 +1,6 @@
+-- Floating point and logical operators
+let pi <- 3.14;
+let r  <- 2.0;
+let area <- pi * r * r;
+let big <- area > 10.0 && r != 0.0;
+emit big;

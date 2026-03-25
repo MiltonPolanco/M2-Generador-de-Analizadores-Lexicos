@@ -1,0 +1,3 @@
+-- Wrong assignment operator (uses = instead of <-)
+let x = 10;
+emit x;

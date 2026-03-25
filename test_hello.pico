@@ -1,0 +1,4 @@
+-- A simple greeting program
+let name <- "world";
+emit "Hello, ";
+emit name;
